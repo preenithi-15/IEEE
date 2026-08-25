@@ -3,357 +3,404 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Section 5 – Expected Impact</title>
+  <title>Section 5 &ndash; Expected Impact</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --pink:      #ff4d8d;
-      --pink-dark: #c9306a;
-      --bg:        #0d0d1f;
-      --surface:   #12122a;
-      --border:    #26264a;
-      --text:      #e0e0ff;
-      --muted:     #7777aa;
-      --bar-h:     72px;
+      --pink:       #ff4d8d;
+      --pink-dark:  #c9306a;
+      --pink-glow:  rgba(255, 77, 141, 0.35);
+      --bg:         #0d0d1f;
+      --surface:    #0f0f24;
+      --border:     #1e1e3a;
+      --text:       #e0e0ff;
+      --muted:      #7777aa;
+      --bar-bg:     rgba(10, 10, 28, 0.97);
     }
 
     html, body {
-      height: 100%;
       background: var(--bg);
       color: var(--text);
       font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100%;
     }
 
-    /* ── top bar ── */
+    /* ── sticky top nav ── */
     .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.6rem 1.2rem;
-      background: rgba(13,13,31,0.92);
-      backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.55rem 1.2rem;
+      background: rgba(10,10,28,0.95);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
     }
     .back-link {
-      color: var(--pink);
-      text-decoration: none;
-      font-size: 0.85rem;
+      color: var(--pink); text-decoration: none; font-size: 0.82rem;
+      opacity: 0.85; transition: opacity 0.15s;
     }
-    .back-link:hover { text-decoration: underline; }
-    .section-badge {
-      font-size: 0.78rem;
-      color: var(--muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
+    .back-link:hover { opacity: 1; text-decoration: underline; }
+    .badge {
+      font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 1.5px; text-transform: uppercase;
     }
-    .section-name {
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--pink);
-      max-width: 240px;
-      text-align: center;
+    .sec-title {
+      font-size: 0.88rem; font-weight: 600; color: var(--pink);
+      text-align: center; max-width: 220px;
     }
 
-    /* ── slide scroll area ── */
-    .slides-area {
-      padding: 1.2rem 1rem calc(var(--bar-h) + 1.5rem);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.2rem;
+    /* ── content area ── */
+    .content {
       max-width: 900px;
       margin: 0 auto;
+      padding: 1.2rem 1rem 110px; /* bottom padding for floating bar */
     }
+
+    /* ── pill button — "hear us explain" ── */
+    .hear-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 1.05rem;
+      background: rgba(255, 77, 141, 0.08);
+      border: 1.5px solid rgba(255, 77, 141, 0.4);
+      border-radius: 999px;
+      color: var(--pink);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 1.1rem;
+      user-select: none;
+    }
+    .hear-pill:hover {
+      background: rgba(255, 77, 141, 0.18);
+      border-color: var(--pink);
+      box-shadow: 0 0 12px var(--pink-glow);
+    }
+    .hear-pill:active { transform: scale(0.97); }
+    .hear-pill .pill-icon { font-size: 1rem; }
+
+    /* ── slide frames — FULL SIZE, nothing cut ── */
     .slide-frame {
       width: 100%;
       border-radius: 10px;
       overflow: hidden;
       border: 1.5px solid var(--border);
-      box-shadow: 0 4px 28px rgba(0,0,0,0.55);
+      box-shadow: 0 4px 28px rgba(0,0,0,0.6);
+      margin-bottom: 1.1rem;
     }
     .slide-frame img {
       width: 100%;
       display: block;
+      /* NO max-height — show everything */
     }
 
-    /* ── floating audio bar ── */
-    .audio-bar {
+    /* ═══════════════════════════════════════════
+       FLOATING AUDIO BAR (bottom-center)
+       Reference: dark card, × | info | controls
+    ═══════════════════════════════════════════ */
+    .float-bar {
       position: fixed;
       bottom: 0;
-      left: 0;
-      right: 0;
-      height: var(--bar-h);
-      background: rgba(16,16,36,0.97);
-      backdrop-filter: blur(12px);
-      border-top: 1.5px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 1.2rem;
-      z-index: 100;
-    }
-
-    /* progress row */
-    .prog-row {
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(760px, 96vw);
+      background: var(--bar-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,77,141,0.2);
+      border-bottom: none;
+      border-radius: 14px 14px 0 0;
+      padding: 0.7rem 1rem 0.65rem;
       display: flex;
       align-items: center;
-      gap: 0.55rem;
-      margin-bottom: 0.4rem;
+      gap: 0.7rem;
+      z-index: 100;
+      box-shadow: 0 -4px 28px rgba(0,0,0,0.55);
+      transition: opacity 0.25s;
     }
-    .time-txt {
-      font-size: 0.72rem;
+    .float-bar.hidden { opacity: 0; pointer-events: none; }
+
+    /* close button */
+    .fb-close {
+      background: none;
+      border: none;
       color: var(--muted);
-      min-width: 78px;
-      font-variant-numeric: tabular-nums;
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      flex-shrink: 0;
+      padding: 2px 4px;
+      transition: color 0.15s;
+    }
+    .fb-close:hover { color: var(--pink); }
+
+    /* separator */
+    .fb-sep {
+      width: 1px;
+      height: 32px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* info block */
+    .fb-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex-shrink: 1;
+    }
+    .fb-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fb-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
       white-space: nowrap;
     }
-    /* progress track */
-    .prog-track {
-      flex: 1;
+
+    /* spacer */
+    .fb-space { flex: 1; }
+
+    /* controls group */
+    .fb-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    /* play/pause circle */
+    .fb-play {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: var(--pink);
+      color: #fff;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 10px var(--pink-glow);
+    }
+    .fb-play:hover { background: var(--pink-dark); transform: scale(1.08); }
+
+    /* time */
+    .fb-time {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      min-width: 72px;
+    }
+
+    /* progress bar */
+    .fb-prog {
       position: relative;
+      width: 100px;
       height: 18px;
       display: flex;
       align-items: center;
       cursor: pointer;
+      flex-shrink: 1;
     }
-    .prog-bg {
+    @media (max-width: 500px) { .fb-prog { width: 50px; } }
+    .fb-track {
       position: absolute;
-      inset: 0;
-      margin: auto;
+      inset: 0; margin: auto;
       height: 3px;
       background: var(--border);
       border-radius: 2px;
     }
-    .prog-fill {
+    .fb-fill {
       position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
+      left: 0; top: 50%; transform: translateY(-50%);
       height: 3px;
       background: var(--pink);
       border-radius: 2px;
       width: 0%;
       pointer-events: none;
     }
-    .prog-thumb {
+    .fb-thumb {
       position: absolute;
-      top: 50%;
-      left: 0%;
+      top: 50%; left: 0%;
       transform: translate(-50%, -50%);
-      width: 11px;
-      height: 11px;
+      width: 10px; height: 10px;
       background: var(--pink);
       border-radius: 50%;
-      box-shadow: 0 0 6px rgba(255,77,141,0.7);
+      box-shadow: 0 0 6px var(--pink-glow);
       pointer-events: none;
-    }
-    .prog-input {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
       opacity: 0;
-      cursor: pointer;
-      margin: 0;
+      transition: opacity 0.15s;
     }
-
-    /* controls row */
-    .ctrl-row {
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
+    .fb-prog:hover .fb-thumb { opacity: 1; }
+    .fb-prog-input {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      opacity: 0; cursor: pointer; margin: 0;
     }
-    /* play/pause */
-    .btn-play {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: none;
-      background: var(--pink);
-      color: #fff;
-      font-size: 0.95rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: background 0.15s, transform 0.1s;
-      box-shadow: 0 2px 10px rgba(255,77,141,0.45);
-    }
-    .btn-play:hover { background: var(--pink-dark); transform: scale(1.08); }
-
-    /* replay */
-    .btn-icon {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 1rem;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      transition: color 0.15s;
-    }
-    .btn-icon:hover { color: var(--pink); }
-
-    /* section label inside bar */
-    .bar-label {
-      flex: 1;
-      font-size: 0.8rem;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 0 0.4rem;
-    }
-    .bar-label span { color: var(--pink); font-weight: 600; }
 
     /* volume */
-    .vol-group {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      flex-shrink: 0;
+    .fb-vol {
+      background: none; border: none;
+      color: var(--muted); font-size: 1rem;
+      cursor: pointer; padding: 0;
+      transition: color 0.15s; flex-shrink: 0;
     }
-    .vol-slider {
-      width: 64px;
-      accent-color: var(--pink);
-      cursor: pointer;
-    }
-
-    /* status */
-    .status-txt {
-      font-size: 0.68rem;
-      color: var(--muted);
-      text-align: right;
-      min-width: 80px;
-      white-space: nowrap;
-    }
+    .fb-vol:hover { color: var(--pink); }
   </style>
 </head>
 <body>
 
-<!-- sticky top bar -->
+<!-- sticky top nav -->
 <div class="topbar">
   <a class="back-link" href="index.html">&larr; All sections</a>
-  <p class="section-name">Expected Impact</p>
-  <span class="section-badge">Section 5&nbsp;/ 7</span>
+  <p class="sec-title">Expected Impact</p>
+  <span class="badge">Section 5&thinsp;/&thinsp;7</span>
 </div>
 
-<!-- scrollable slides -->
-<div class="slides-area">
-<div class="slide-frame"><img src="slide_p8.png" alt="Slide page 9" loading="lazy"/></div>
-    <div class="slide-frame"><img src="slide_p9.png" alt="Slide page 10" loading="lazy"/></div>
+<!-- main content -->
+<div class="content">
+
+  <!-- pill button — at the top before slides -->
+  <button class="hear-pill" id="hearPill" onclick="pillPlay()">
+    <span class="pill-icon">&#128266;</span>
+    Hear the team explain this section
+  </button>
+
+  <!-- all slides — full size, nothing cut -->
+  <div class="slide-frame"><img src="slide_p8.png" alt="Slide page 9" loading="lazy"></div>
+  <div class="slide-frame"><img src="slide_p9.png" alt="Slide page 10" loading="lazy"></div>
+
 </div>
 
-<!-- hidden audio element -->
+<!-- hidden audio -->
 <audio id="audio" preload="auto">
   <source src="5.ogg" type="audio/ogg">
 </audio>
 
 <!-- floating audio bar -->
-<div class="audio-bar">
+<div class="float-bar" id="floatBar">
 
-  <!-- progress row -->
-  <div class="prog-row">
-    <span class="time-txt" id="timeTxt">0:00 / --:--</span>
-    <div class="prog-track" id="progTrack">
-      <div class="prog-bg"></div>
-      <div class="prog-fill"  id="progFill"></div>
-      <div class="prog-thumb" id="progThumb"></div>
-      <input class="prog-input" type="range" id="progInput"
-             min="0" max="100" step="0.05" value="0"
-             oninput="onSeek(this.value)">
-    </div>
+  <button class="fb-close" title="Dismiss" onclick="dismissBar()">&#215;</button>
+  <div class="fb-sep"></div>
+
+  <div class="fb-info">
+    <span class="fb-title">Section 5 &mdash; Expected Impact</span>
+    <span class="fb-sub" id="fbSub">Tap &ldquo;Hear the team&rdquo; or press play</span>
   </div>
 
-  <!-- controls row -->
-  <div class="ctrl-row">
-    <button class="btn-play" id="btnPlay" title="Play / Pause" onclick="togglePlay()">&#9654;</button>
-    <button class="btn-icon" title="Replay" onclick="replay()">&#8635;</button>
-    <p class="bar-label">Narration &mdash; <span>Expected Impact</span></p>
-    <div class="vol-group">
-      <button class="btn-icon" id="btnVol" title="Mute / Unmute" onclick="toggleMute()">&#128266;</button>
-      <input class="vol-slider" type="range" id="volSlider"
-             min="0" max="1" step="0.05" value="1"
-             oninput="setVol(this.value)">
-    </div>
-    <span class="status-txt" id="statusTxt">Loading&hellip;</span>
-  </div>
+  <div class="fb-space"></div>
 
+  <div class="fb-controls">
+
+    <!-- play/pause -->
+    <button class="fb-play" id="fbPlay" title="Play / Pause" onclick="togglePlay()">&#9654;</button>
+
+    <!-- time -->
+    <span class="fb-time" id="fbTime">0:00&nbsp;/&nbsp;--:--</span>
+
+    <!-- progress -->
+    <div class="fb-prog">
+      <div class="fb-track"></div>
+      <div class="fb-fill"  id="fbFill"></div>
+      <div class="fb-thumb" id="fbThumb"></div>
+      <input class="fb-prog-input" type="range"
+             id="fbProg" min="0" max="100" step="0.05" value="0"
+             oninput="seek(this.value)">
+    </div>
+
+    <!-- volume -->
+    <button class="fb-vol" id="fbVol" title="Mute / Unmute" onclick="toggleMute()">&#128266;</button>
+
+  </div>
 </div>
 
 <script>
-  const audio    = document.getElementById('audio');
-  const btnPlay  = document.getElementById('btnPlay');
-  const progFill = document.getElementById('progFill');
-  const progThumb= document.getElementById('progThumb');
-  const progInput= document.getElementById('progInput');
-  const timeTxt  = document.getElementById('timeTxt');
-  const statusTxt= document.getElementById('statusTxt');
-  const volSlider= document.getElementById('volSlider');
-  const btnVol   = document.getElementById('btnVol');
+  const audio   = document.getElementById('audio');
+  const fbPlay  = document.getElementById('fbPlay');
+  const fbFill  = document.getElementById('fbFill');
+  const fbThumb = document.getElementById('fbThumb');
+  const fbProg  = document.getElementById('fbProg');
+  const fbTime  = document.getElementById('fbTime');
+  const fbSub   = document.getElementById('fbSub');
+  const fbVol   = document.getElementById('fbVol');
+  const floatBar= document.getElementById('floatBar');
+  const hearPill= document.getElementById('hearPill');
+  let barDismissed = false;
 
   function fmt(s) {
     if (!isFinite(s)) return '--:--';
-    const m = Math.floor(s / 60);
-    return m + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+    return Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
   }
 
-  function syncProgress() {
+  function sync() {
     if (!audio.duration) return;
     const pct = (audio.currentTime / audio.duration) * 100;
-    progFill.style.width  = pct + '%';
-    progThumb.style.left  = pct + '%';
-    progInput.value       = pct;
-    timeTxt.textContent   = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+    fbFill.style.width  = pct + '%';
+    fbThumb.style.left  = pct + '%';
+    fbProg.value        = pct;
+    fbTime.textContent  = fmt(audio.currentTime) + '\u00a0/\u00a0' + fmt(audio.duration);
   }
 
   function togglePlay() {
     audio.paused ? audio.play() : audio.pause();
   }
 
-  function replay() {
-    audio.currentTime = 0;
-    audio.play();
+  function pillPlay() {
+    // Show bar if dismissed, then play
+    barDismissed = false;
+    floatBar.classList.remove('hidden');
+    audio.paused ? audio.play() : audio.pause();
   }
 
-  function onSeek(val) {
-    if (audio.duration) audio.currentTime = (val / 100) * audio.duration;
-  }
-
-  function setVol(v) {
-    audio.volume = v;
-    audio.muted  = (v == 0);
-    updateVolIcon();
+  function seek(val) {
+    if (audio.duration) audio.currentTime = (val/100) * audio.duration;
   }
 
   function toggleMute() {
     audio.muted = !audio.muted;
-    volSlider.value = audio.muted ? 0 : (audio.volume || 1);
-    updateVolIcon();
+    fbVol.innerHTML = audio.muted ? '&#128263;' : '&#128266;';
   }
 
-  function updateVolIcon() {
-    btnVol.innerHTML = (audio.muted || audio.volume === 0) ? '&#128263;' : '&#128266;';
+  function dismissBar() {
+    barDismissed = true;
+    floatBar.classList.add('hidden');
+    audio.pause();
   }
 
-  audio.addEventListener('play',  () => { btnPlay.innerHTML = '&#9646;&#9646;'; statusTxt.textContent = 'Playing…'; });
-  audio.addEventListener('pause', () => { btnPlay.innerHTML = '&#9654;'; if (!audio.ended) statusTxt.textContent = 'Paused'; });
-  audio.addEventListener('ended', () => { btnPlay.innerHTML = '&#9654;'; statusTxt.textContent = 'Done — press ↺ to replay'; syncProgress(); });
-  audio.addEventListener('timeupdate', syncProgress);
-  audio.addEventListener('error', () => { statusTxt.textContent = '⚠ Audio error'; });
-
+  // Audio events
+  audio.addEventListener('play', () => {
+    fbPlay.innerHTML = '&#9646;&#9646;';
+    fbSub.textContent = 'Playing\u2026';
+    hearPill.innerHTML = '<span class="pill-icon">&#128266;</span> Pause narration';
+    if (!barDismissed) floatBar.classList.remove('hidden');
+  });
+  audio.addEventListener('pause', () => {
+    fbPlay.innerHTML = '&#9654;';
+    hearPill.innerHTML = '<span class="pill-icon">&#128266;</span> Hear the team explain this section';
+    if (!audio.ended) fbSub.textContent = 'Paused \u2014 press \u25b6 to resume';
+  });
+  audio.addEventListener('ended', () => {
+    fbPlay.innerHTML = '&#9654;';
+    fbSub.textContent = 'Done \u2014 press \u25b6 to replay';
+    hearPill.innerHTML = '<span class="pill-icon">&#128266;</span> Hear the team explain this section';
+  });
+  audio.addEventListener('timeupdate', sync);
+  audio.addEventListener('error', () => { fbSub.textContent = '\u26a0 Audio unavailable'; });
   audio.addEventListener('canplaythrough', () => {
-    timeTxt.textContent = '0:00 / ' + fmt(audio.duration);
-    statusTxt.textContent = 'Ready';
-    audio.play().then(() => {
-      statusTxt.textContent = 'Playing…';
-    }).catch(() => {
-      statusTxt.textContent = 'Press ▶ to play';
+    fbTime.textContent = '0:00\u00a0/\u00a0' + fmt(audio.duration);
+    audio.play().catch(() => {
+      fbSub.textContent = 'Press \u25b6 or the pill button to play';
     });
   });
 </script>
