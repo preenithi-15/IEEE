@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IEEE Presentation – Audio Narration</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #0a0a1a;
+      background: #0d0d1f;
       color: #e0e0ff;
       min-height: 100vh;
       display: flex;
@@ -17,93 +17,51 @@
       justify-content: center;
       padding: 2rem;
     }
-    h1 {
-      font-size: 1.6rem;
-      color: #7eb8f7;
-      margin-bottom: 0.4rem;
-      text-align: center;
-      letter-spacing: 1px;
+    h1 { font-size: 1.5rem; color: #ff4d8d; margin-bottom: 0.35rem; text-align: center; }
+    p.sub { color: #7777aa; font-size: 0.9rem; margin-bottom: 0.6rem; text-align: center; }
+    .open-btn {
+      display: inline-block;
+      margin-bottom: 1.6rem;
+      padding: 0.55rem 1.3rem;
+      background: rgba(255,77,141,0.12);
+      border: 1.5px solid rgba(255,77,141,0.5);
+      border-radius: 999px;
+      color: #ff4d8d;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
     }
-    p.subtitle {
-      color: #8888bb;
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-    .sections {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      width: 100%;
-      max-width: 560px;
-    }
-    a.section-card {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    .open-btn:hover { background: rgba(255,77,141,0.22); border-color: #ff4d8d; }
+    .sections { display: flex; flex-direction: column; gap: 0.65rem; width: 100%; max-width: 520px; }
+    a.card {
+      display: flex; align-items: center; gap: 0.9rem;
       background: #12122a;
-      border: 1px solid #2a2a5a;
+      border: 1px solid #1e1e3a;
       border-radius: 10px;
-      padding: 0.9rem 1.2rem;
+      padding: 0.75rem 1.1rem;
       text-decoration: none;
       color: #dde;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
+      transition: background 0.18s, border-color 0.18s, transform 0.1s;
     }
-    a.section-card:hover {
-      background: #1a1a40;
-      border-color: #5577ff;
-      transform: translateX(4px);
-    }
-    .num {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #5577ff;
-      min-width: 1.8rem;
-      text-align: center;
-    }
-    .icon { font-size: 1.4rem; }
-    .label { font-size: 1rem; }
+    a.card:hover { background: #1a1a40; border-color: #ff4d8d; transform: translateX(4px); }
+    .num { font-size: 1.1rem; font-weight: 700; color: #ff4d8d; min-width: 1.6rem; text-align: center; }
+    .icon { font-size: 1.2rem; }
+    .lbl { font-size: 0.95rem; }
   </style>
 </head>
 <body>
-  <h1>🎙️ IEEE Presentation</h1>
-  <p class="subtitle">Click a section to play its audio narration</p>
+  <h1>🎙️ IEEE WIE ILS 2026</h1>
+  <p class="sub">Click a section to open the full PDF viewer at that section</p>
+  <a class="open-btn" href="viewer.html">&#128196; Open Full PDF Viewer</a>
+
   <div class="sections">
-    <a class="section-card" href="section1.html">
-      <span class="num">1</span>
-      <span class="icon">🔊</span>
-      <span class="label">Problem Understanding</span>
-    </a>
-    <a class="section-card" href="section2.html">
-      <span class="num">2</span>
-      <span class="icon">🔊</span>
-      <span class="label">Proposed Solution / Idea</span>
-    </a>
-    <a class="section-card" href="section3.html">
-      <span class="num">3</span>
-      <span class="icon">🔊</span>
-      <span class="label">Innovation &amp; Uniqueness</span>
-    </a>
-    <a class="section-card" href="section4.html">
-      <span class="num">4</span>
-      <span class="icon">🔊</span>
-      <span class="label">Feasibility &amp; Implementation Plan</span>
-    </a>
-    <a class="section-card" href="section5.html">
-      <span class="num">5</span>
-      <span class="icon">🔊</span>
-      <span class="label">Expected Impact</span>
-    </a>
-    <a class="section-card" href="section6.html">
-      <span class="num">6</span>
-      <span class="icon">🔊</span>
-      <span class="label">Technology Stack</span>
-    </a>
-    <a class="section-card" href="section7.html">
-      <span class="num">7</span>
-      <span class="icon">🔊</span>
-      <span class="label">Team Member Roles</span>
-    </a>
+    <a class="card" href="viewer.html?section=1"><span class="num">1</span><span class="icon">🔊</span><span class="lbl">Problem Understanding</span></a>
+    <a class="card" href="viewer.html?section=2"><span class="num">2</span><span class="icon">🔊</span><span class="lbl">Proposed Solution / Idea</span></a>
+    <a class="card" href="viewer.html?section=3"><span class="num">3</span><span class="icon">🔊</span><span class="lbl">Innovation &amp; Uniqueness</span></a>
+    <a class="card" href="viewer.html?section=4"><span class="num">4</span><span class="icon">🔊</span><span class="lbl">Feasibility &amp; Implementation Plan</span></a>
+    <a class="card" href="viewer.html?section=5"><span class="num">5</span><span class="icon">🔊</span><span class="lbl">Expected Impact</span></a>
+    <a class="card" href="viewer.html?section=6"><span class="num">6</span><span class="icon">🔊</span><span class="lbl">Technology Stack</span></a>
+    <a class="card" href="viewer.html?section=7"><span class="num">7</span><span class="icon">🔊</span><span class="lbl">Team Member Roles</span></a>
   </div>
 </body>
 </html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IEEE Presentation — Full Viewer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink:       #ff4d8d;
+      --pink-dk:    #c9306a;
+      --pink-glow:  rgba(255, 77, 141, 0.4);
+      --bg:         #111122;
+      --ribbon-bg:  rgba(8, 8, 20, 0.97);
+      --border:     #1e1e3a;
+      --text:       #e8e8ff;
+      --muted:      #7777aa;
+      --topbar-h:   36px;
+      --ribbon-h:   62px;
+      --prog-h:     4px;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      overscroll-behavior-y: contain;
+    }
+
+    /* ─── thin top bar ─── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      height: var(--topbar-h);
+      background: rgba(8, 8, 20, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 0.9rem;
+      gap: 0.7rem;
+    }
+    .topbar-back {
+      color: var(--pink);
+      text-decoration: none;
+      font-size: 0.78rem;
+      opacity: 0.85;
+      transition: opacity 0.15s;
+    }
+    .topbar-back:hover { opacity: 1; text-decoration: underline; }
+    .topbar-title {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .topbar-section {
+      margin-left: auto;
+      font-size: 0.74rem;
+      color: var(--pink);
+      font-weight: 600;
+      max-width: 240px;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ─── PDF pages ─── */
+    .viewer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0.5rem 0 calc(var(--ribbon-h) + var(--prog-h) + 10px);
+    }
+
+    /* Each page wrapper uses aspect-ratio so scroll is accurate before images load */
+    .page-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 595 / 842;   /* exact PDF aspect ratio */
+      margin-bottom: 4px;
+      line-height: 0;
+    }
+    .page-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;          /* fill the exact aspect-ratio box */
+      display: block;
+    }
+
+    /* Invisible section anchors at heading Y% inside each page */
+    .sec-anchor {
+      position: absolute;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+
+    /* ─── progress bar (above ribbon) ─── */
+    .rb-progress {
+      position: fixed;
+      bottom: var(--ribbon-h);
+      left: 0; right: 0;
+      height: var(--prog-h);
+      background: var(--border);
+      z-index: 99;
+      cursor: pointer;
+    }
+    .rb-prog-fill {
+      height: 100%;
+      background: var(--pink);
+      width: 0%;
+    }
+    .rb-prog-input {
+      position: absolute;
+      inset: -8px 0;
+      width: 100%;
+      height: calc(var(--prog-h) + 16px);
+      opacity: 0;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    /* ─── ribbon ─── */
+    .ribbon {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--ribbon-h);
+      background: var(--ribbon-bg);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(255, 77, 141, 0.2);
+      display: flex;
+      align-items: center;
+      padding: 0 0.8rem;
+      gap: 0;
+      z-index: 100;
+    }
+
+    /* LEFT: menu + section info */
+    .rb-left {
+      display: flex; align-items: center; gap: 0.55rem;
+      min-width: 0; flex: 1.2;
+    }
+    .rb-menu {
+      background: none; border: none;
+      color: var(--muted); font-size: 1.1rem;
+      cursor: pointer; flex-shrink: 0;
+      transition: color 0.15s; padding: 0;
+    }
+    .rb-menu:hover { color: var(--pink); }
+    .rb-info { display: flex; flex-direction: column; min-width: 0; }
+    .rb-label {
+      font-size: 0.78rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rb-counter { font-size: 0.64rem; color: var(--muted); }
+
+    /* CENTER: prev | play | next */
+    .rb-center {
+      display: flex; align-items: center; gap: 0.5rem;
+      flex-shrink: 0;
+      padding: 0 0.7rem;
+    }
+    .rb-prev, .rb-next {
+      background: none; border: none;
+      color: var(--muted); font-size: 1.1rem;
+      cursor: pointer; padding: 0;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+    .rb-prev:hover, .rb-next:hover { color: var(--text); }
+    .rb-prev:disabled, .rb-next:disabled {
+      opacity: 0.3; cursor: default;
+    }
+    .rb-play {
+      width: 40px; height: 40px;
+      border-radius: 50%; border: none;
+      background: var(--pink);
+      color: #fff; font-size: 0.95rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      padding-left: 2px;    /* optical ▶ centering */
+      box-shadow: 0 2px 14px var(--pink-glow);
+      transition: background 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+    .rb-play:hover { background: var(--pink-dk); transform: scale(1.08); }
+
+    /* RIGHT: time | vol | slider | fullscreen */
+    .rb-right {
+      display: flex; align-items: center; gap: 0.45rem;
+      flex-shrink: 0;
+    }
+    .rb-time {
+      font-size: 0.74rem; color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .rb-vol {
+      background: none; border: none;
+      color: var(--muted); font-size: 0.95rem;
+      cursor: pointer; padding: 0;
+      transition: color 0.15s;
+    }
+    .rb-vol:hover { color: var(--pink); }
+    .rb-vol-slider {
+      width: 66px;
+      accent-color: var(--pink);
+      cursor: pointer;
+    }
+    .rb-fs {
+      background: none; border: none;
+      color: var(--muted); font-size: 0.95rem;
+      cursor: pointer; padding: 0;
+      transition: color 0.15s;
+    }
+    .rb-fs:hover { color: var(--text); }
+
+    /* hide vol slider on narrow screens */
+    @media (max-width: 480px) {
+      .rb-vol-slider { display: none; }
+      .rb-time { font-size: 0.68rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- thin top bar -->
+<div class="topbar">
+  <a class="topbar-back" href="index.html">&#8592; Index</a>
+  <span class="topbar-title">IEEE WIE ILS 2026 &mdash; Full Presentation</span>
+  <span class="topbar-section" id="topSection">Loading&hellip;</span>
+</div>
+
+<!-- hidden audio element -->
+<audio id="audio" preload="auto"></audio>
+
+<!-- ════ ALL 13 PDF PAGES ════ -->
+<div class="viewer" id="viewer">
+
+  <!-- Pages 0–3: Cover, Index, Team Info -->
+  <div class="page-wrap"><img src="slide_p0.png"  alt="Page 1"  loading="eager"></div>
+  <div class="page-wrap"><img src="slide_p1.png"  alt="Page 2"  loading="lazy"></div>
+  <div class="page-wrap"><img src="slide_p2.png"  alt="Page 3"  loading="lazy"></div>
+  <div class="page-wrap"><img src="slide_p3.png"  alt="Page 4"  loading="lazy"></div>
+
+  <!-- Page 5 (index 4) — Section 1: Problem Understanding  (heading at 6.53%) -->
+  <div class="page-wrap">
+    <img src="slide_p4.png" alt="Page 5" loading="lazy">
+    <div class="sec-anchor" id="sec1" style="top:6.53%"></div>
+  </div>
+
+  <!-- Page 6 (index 5) — Section 2: Proposed Solution  (heading at 6.53%) -->
+  <div class="page-wrap">
+    <img src="slide_p5.png" alt="Page 6" loading="lazy">
+    <div class="sec-anchor" id="sec2" style="top:6.53%"></div>
+  </div>
+
+  <!-- Page 7 (index 6) — Section 3: Innovation & Uniqueness  (heading at 8.91%) -->
+  <div class="page-wrap">
+    <img src="slide_p6.png" alt="Page 7" loading="lazy">
+    <div class="sec-anchor" id="sec3" style="top:8.91%"></div>
+  </div>
+
+  <!-- Page 8 (index 7) — Section 4: Feasibility  (heading at 8.08%) -->
+  <div class="page-wrap">
+    <img src="slide_p7.png" alt="Page 8" loading="lazy">
+    <div class="sec-anchor" id="sec4" style="top:8.08%"></div>
+  </div>
+
+  <!-- Page 9 (index 8) — Section 5: Expected Impact  (heading at 15.08%) -->
+  <div class="page-wrap">
+    <img src="slide_p8.png" alt="Page 9" loading="lazy">
+    <div class="sec-anchor" id="sec5" style="top:15.08%"></div>
+  </div>
+
+  <!-- Page 10 (index 9) — continuation, no new section -->
+  <div class="page-wrap"><img src="slide_p9.png"  alt="Page 10" loading="lazy"></div>
+
+  <!-- Page 11 (index 10) — Section 6: Technology Stack  (heading at 6.53%) -->
+  <div class="page-wrap">
+    <img src="slide_p10.png" alt="Page 11" loading="lazy">
+    <div class="sec-anchor" id="sec6" style="top:6.53%"></div>
+  </div>
+
+  <!-- Page 12 (index 11) — Section 7: Team Member Roles  (heading at 6.53%) -->
+  <div class="page-wrap">
+    <img src="slide_p11.png" alt="Page 12" loading="lazy">
+    <div class="sec-anchor" id="sec7" style="top:6.53%"></div>
+  </div>
+
+  <!-- Page 13 (index 12) — Final/signature page -->
+  <div class="page-wrap"><img src="slide_p12.png" alt="Page 13" loading="lazy"></div>
+
+</div><!-- /viewer -->
+
+<!-- progress bar -->
+<div class="rb-progress">
+  <div class="rb-prog-fill" id="rbFill"></div>
+  <input type="range" class="rb-prog-input" id="rbProgInput"
+         min="0" max="100" step="0.05" value="0"
+         oninput="seekAudio(this.value)">
+</div>
+
+<!-- ribbon -->
+<div class="ribbon">
+
+  <div class="rb-left">
+    <button class="rb-menu" title="Back to index"
+            onclick="window.location='index.html'">&#9776;</button>
+    <div class="rb-info">
+      <span class="rb-label" id="rbLabel">Narration: Problem Understanding</span>
+      <span class="rb-counter" id="rbCounter">1 / 7</span>
+    </div>
+  </div>
+
+  <div class="rb-center">
+    <button class="rb-prev" id="rbPrev" title="Previous narration"
+            onclick="changeSection(-1)">&#9198;</button>
+    <button class="rb-play" id="rbPlay" title="Play / Pause"
+            onclick="togglePlay()">&#9654;</button>
+    <button class="rb-next" id="rbNext" title="Next narration"
+            onclick="changeSection(+1)">&#9197;</button>
+  </div>
+
+  <div class="rb-right">
+    <span class="rb-time" id="rbTime">0:00&nbsp;/&nbsp;--:--</span>
+    <button class="rb-vol"  id="rbVol" title="Mute / Unmute"
+            onclick="toggleMute()">&#128266;</button>
+    <input  class="rb-vol-slider" type="range" id="rbVolSlider"
+            min="0" max="1" step="0.05" value="1"
+            oninput="setVol(this.value)">
+    <button class="rb-fs" title="Fullscreen" onclick="toggleFs()">&#9974;&#65038;</button>
+  </div>
+
+</div>
+
+<script>
+// ─── Section data ─────────────────────────────────────────────────────────
+const SECTIONS = [
+  { label: "Problem Understanding",        audio: "1.ogg", anchorId: "sec1" },
+  { label: "Proposed Solution / Idea",     audio: "2.ogg", anchorId: "sec2" },
+  { label: "Innovation & Uniqueness",      audio: "3.ogg", anchorId: "sec3" },
+  { label: "Feasibility & Implementation", audio: "4.ogg", anchorId: "sec4" },
+  { label: "Expected Impact",              audio: "5.ogg", anchorId: "sec5" },
+  { label: "Technology Stack",             audio: "6.ogg", anchorId: "sec6" },
+  { label: "Team Member Roles",            audio: "7.ogg", anchorId: "sec7" },
+];
+// 0-indexed current section
+let cur = 0;
+
+// ─── Elements ─────────────────────────────────────────────────────────────
+const audio       = document.getElementById('audio');
+const rbPlay      = document.getElementById('rbPlay');
+const rbFill      = document.getElementById('rbFill');
+const rbProgInput = document.getElementById('rbProgInput');
+const rbTime      = document.getElementById('rbTime');
+const rbLabel     = document.getElementById('rbLabel');
+const rbCounter   = document.getElementById('rbCounter');
+const rbPrev      = document.getElementById('rbPrev');
+const rbNext      = document.getElementById('rbNext');
+const rbVol       = document.getElementById('rbVol');
+const rbVolSlider = document.getElementById('rbVolSlider');
+const topSection  = document.getElementById('topSection');
+const TOPBAR_H    = 36;   // px — must match --topbar-h
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function fmt(s) {
+  if (!isFinite(s) || isNaN(s)) return '--:--';
+  const m = Math.floor(s / 60);
+  return m + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+}
+
+function updateRibbon() {
+  const s = SECTIONS[cur];
+  rbLabel.textContent   = 'Narration: ' + s.label;
+  rbCounter.textContent = (cur + 1) + ' / ' + SECTIONS.length;
+  topSection.textContent = s.label;
+  rbPrev.disabled = (cur === 0);
+  rbNext.disabled = (cur === SECTIONS.length - 1);
+}
+
+function loadSection(idx, autoplay) {
+  cur = Math.max(0, Math.min(idx, SECTIONS.length - 1));
+  const s = SECTIONS[cur];
+
+  // Scroll to heading anchor — immediate (no smooth, so heading is in view)
+  const anchor = document.getElementById(s.anchorId);
+  if (anchor) {
+    const rect = anchor.getBoundingClientRect();
+    const absTop = window.scrollY + rect.top;
+    window.scrollTo({ top: absTop - TOPBAR_H, behavior: 'instant' });
+  }
+
+  // Load audio
+  audio.pause();
+  audio.src = s.audio;
+  audio.load();
+  rbPlay.innerHTML = '&#9654;';
+  rbTime.textContent = '0:00\u00a0/\u00a0--:--';
+  rbFill.style.width = '0%';
+  rbProgInput.value  = 0;
+
+  updateRibbon();
+
+  if (autoplay) {
+    audio.addEventListener('canplaythrough', () => audio.play(), { once: true });
+  }
+}
+
+// ─── Playback controls ─────────────────────────────────────────────────────
+function togglePlay() {
+  if (audio.paused) audio.play(); else audio.pause();
+}
+
+function changeSection(delta) {
+  const target = cur + delta;
+  if (target < 0 || target >= SECTIONS.length) return;
+  loadSection(target, !audio.paused);
+}
+
+function seekAudio(val) {
+  if (audio.duration) audio.currentTime = (val / 100) * audio.duration;
+}
+
+function setVol(v) {
+  audio.volume = parseFloat(v);
+  audio.muted  = (v == 0);
+  updateVolIcon();
+}
+
+function toggleMute() {
+  audio.muted = !audio.muted;
+  rbVolSlider.value = audio.muted ? 0 : audio.volume;
+  updateVolIcon();
+}
+
+function updateVolIcon() {
+  rbVol.innerHTML = (audio.muted || audio.volume === 0) ? '&#128263;' : '&#128266;';
+}
+
+function toggleFs() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+// ─── Audio event listeners ─────────────────────────────────────────────────
+audio.addEventListener('play',  () => { rbPlay.innerHTML = '&#9646;&#9646;'; });
+audio.addEventListener('pause', () => { rbPlay.innerHTML = '&#9654;'; });
+audio.addEventListener('ended', () => { rbPlay.innerHTML = '&#9654;'; });
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration) return;
+  const pct = audio.currentTime / audio.duration * 100;
+  rbFill.style.width  = pct + '%';
+  rbProgInput.value   = pct;
+  rbTime.textContent  = fmt(audio.currentTime) + '\u00a0/\u00a0' + fmt(audio.duration);
+});
+audio.addEventListener('loadedmetadata', () => {
+  rbTime.textContent = '0:00\u00a0/\u00a0' + fmt(audio.duration);
+});
+
+// ─── Init on load ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Read ?section= param (1-indexed)
+  const params = new URLSearchParams(window.location.search);
+  const s = parseInt(params.get('section')) || 1;
+  const idx = Math.max(0, Math.min(s - 1, SECTIONS.length - 1));
+
+  // Load immediately — aspect-ratio ensures layout is ready
+  loadSection(idx, false);
+
+  // Re-scroll after a short tick to catch any layout reflow
+  setTimeout(() => {
+    const anchor = document.getElementById(SECTIONS[idx].anchorId);
+    if (anchor) {
+      const rect = anchor.getBoundingClientRect();
+      const absTop = window.scrollY + rect.top;
+      window.scrollTo({ top: absTop - TOPBAR_H, behavior: 'instant' });
+    }
+  }, 120);
+});
+</script>
+
+</body>
+</html>
