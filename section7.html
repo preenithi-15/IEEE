@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Section 7 – Team Member Roles</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0a0a1a;
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    .badge {
+      font-size: 0.85rem;
+      color: #5577ff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: #7eb8f7;
+      margin-bottom: 2rem;
+    }
+    .player-box {
+      background: #12122a;
+      border: 1px solid #2a2a5a;
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      max-width: 480px;
+      width: 100%;
+    }
+    .wave-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    audio {
+      width: 100%;
+      margin: 1rem 0;
+      accent-color: #5577ff;
+    }
+    .play-btn {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.75rem 2rem;
+      background: #5577ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .play-btn:hover { background: #3355dd; }
+    .status {
+      font-size: 0.85rem;
+      color: #8888bb;
+      margin-top: 0.5rem;
+      min-height: 1.2rem;
+    }
+    .back-link {
+      margin-top: 2rem;
+      color: #5577ff;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="badge">Section 7 of 7</div>
+  <h1>Team Member Roles</h1>
+
+  <div class="player-box">
+    <div class="wave-icon" id="waveIcon">🔊</div>
+    <audio id="audioPlayer" controls preload="auto">
+      <source src="7.ogg" type="audio/ogg">
+      Your browser does not support the audio element.
+    </audio>
+    <button class="play-btn" id="playBtn" onclick="manualPlay()">▶ Play Narration</button>
+    <p class="status" id="statusMsg">Loading audio…</p>
+  </div>
+
+  <a class="back-link" href="index.html">← Back to all sections</a>
+
+  <script>
+    const audio = document.getElementById('audioPlayer');
+    const playBtn = document.getElementById('playBtn');
+    const statusMsg = document.getElementById('statusMsg');
+    const waveIcon = document.getElementById('waveIcon');
+
+    audio.addEventListener('canplaythrough', () => {
+      statusMsg.textContent = 'Attempting autoplay…';
+      audio.play().then(() => {
+        statusMsg.textContent = '▶ Playing narration';
+        waveIcon.style.animation = 'pulse 1s infinite';
+      }).catch(() => {
+        statusMsg.textContent = 'Autoplay blocked by browser — press Play to start';
+        playBtn.style.display = 'inline-block';
+      });
+    });
+
+    audio.addEventListener('ended', () => {
+      statusMsg.textContent = '✔ Narration complete';
+      waveIcon.style.animation = 'none';
+      waveIcon.textContent = '✅';
+    });
+
+    audio.addEventListener('error', () => {
+      statusMsg.textContent = '⚠ Could not load audio file';
+    });
+
+    function manualPlay() {
+      audio.play();
+      playBtn.style.display = 'none';
+      statusMsg.textContent = '▶ Playing narration';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IEEE Presentation – Audio Narration</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0a0a1a;
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 1.6rem;
+      color: #7eb8f7;
+      margin-bottom: 0.4rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    p.subtitle {
+      color: #8888bb;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .sections {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      width: 100%;
+      max-width: 560px;
+    }
+    a.section-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #12122a;
+      border: 1px solid #2a2a5a;
+      border-radius: 10px;
+      padding: 0.9rem 1.2rem;
+      text-decoration: none;
+      color: #dde;
+      transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    }
+    a.section-card:hover {
+      background: #1a1a40;
+      border-color: #5577ff;
+      transform: translateX(4px);
+    }
+    .num {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #5577ff;
+      min-width: 1.8rem;
+      text-align: center;
+    }
+    .icon { font-size: 1.4rem; }
+    .label { font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>🎙️ IEEE Presentation</h1>
+  <p class="subtitle">Click a section to play its audio narration</p>
+  <div class="sections">
+    <a class="section-card" href="section1.html">
+      <span class="num">1</span>
+      <span class="icon">🔊</span>
+      <span class="label">Problem Understanding</span>
+    </a>
+    <a class="section-card" href="section2.html">
+      <span class="num">2</span>
+      <span class="icon">🔊</span>
+      <span class="label">Proposed Solution / Idea</span>
+    </a>
+    <a class="section-card" href="section3.html">
+      <span class="num">3</span>
+      <span class="icon">🔊</span>
+      <span class="label">Innovation &amp; Uniqueness</span>
+    </a>
+    <a class="section-card" href="section4.html">
+      <span class="num">4</span>
+      <span class="icon">🔊</span>
+      <span class="label">Feasibility &amp; Implementation Plan</span>
+    </a>
+    <a class="section-card" href="section5.html">
+      <span class="num">5</span>
+      <span class="icon">🔊</span>
+      <span class="label">Expected Impact</span>
+    </a>
+    <a class="section-card" href="section6.html">
+      <span class="num">6</span>
+      <span class="icon">🔊</span>
+      <span class="label">Technology Stack</span>
+    </a>
+    <a class="section-card" href="section7.html">
+      <span class="num">7</span>
+      <span class="icon">🔊</span>
+      <span class="label">Team Member Roles</span>
+    </a>
+  </div>
+</body>
+</html>
